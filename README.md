@@ -13,6 +13,16 @@ You will need to set the `EQUINIX_TOKEN` environment variable to this token.
 
 ## Usage
 
+`equinix-billing-tools <subcommand> [<options>]`
+
+At the moment there is a single subcommand. More will come.
+
+### `cost_summary` subcommand
+
+Displays a summary of costs per project for the given period and for a baseline
+period of the same length. Due to quirks of the Equinix API, the tool generates
+separate reports for Reserved Hardware and for everything else.
+
 You can provide any or all of the following flags:
 
 `-e`: This is the end date for the report, in `YYYY-MM-DD` format. The Equinix
