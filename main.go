@@ -28,7 +28,7 @@ func main() {
 	command, found := commands[os.Args[1]]
 
 	if !found {
-		fmt.Fprint(os.Stderr, "Invalid subcommand %s. Valid subcommands: \n")
+		fmt.Fprintf(os.Stderr, "Invalid subcommand %s. Valid subcommands: \n", os.Args[1])
 		printSubcommands(commands)
 		os.Exit(1)
 	}
