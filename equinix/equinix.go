@@ -44,19 +44,19 @@ func (eq Equinix) GetProjects() ([]Project, error) {
 		nil,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("Error while creating HTTP request: %w", err)
+		return nil, fmt.Errorf("error while creating HTTP request: %w", err)
 	}
 
 	req.Header.Add("X-Auth-Token", eq.Token)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("Error while making the HTTP request: %w", err)
+		return nil, fmt.Errorf("error while making the HTTP request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Error while reading the response body: %w", err)
+		return nil, fmt.Errorf("error while reading the response body: %w", err)
 	}
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf(
@@ -70,7 +70,7 @@ func (eq Equinix) GetProjects() ([]Project, error) {
 
 	err = json.Unmarshal(bytes, &projects)
 	if err != nil {
-		return nil, fmt.Errorf("Error while unmarshaling JSON response: %w", err)
+		return nil, fmt.Errorf("error while unmarshaling JSON response: %w", err)
 	}
 
 	return projects.Projects, nil
@@ -93,19 +93,19 @@ func (eq Equinix) GetUsages(startDate time.Time, endDate time.Time, projects []P
 			nil,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("Error while creating HTTP request for project %s: %w", project.Id, err)
+			return nil, fmt.Errorf("error while creating HTTP request for project %s: %w", project.Id, err)
 		}
 
 		req.Header.Add("X-Auth-Token", eq.Token)
 		resp, err := client.Do(req)
 		if err != nil {
-			return nil, fmt.Errorf("Error while making the HTTP request for project %s: %w", project.Id, err)
+			return nil, fmt.Errorf("error while making the HTTP request for project %s: %w", project.Id, err)
 		}
 		defer resp.Body.Close()
 
 		bytes, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Error while reading the response body for project %s: %w", project.Id, err)
+			return nil, fmt.Errorf("error while reading the response body for project %s: %w", project.Id, err)
 		}
 		if resp.StatusCode != 200 {
 			return nil, fmt.Errorf(
@@ -120,7 +120,7 @@ func (eq Equinix) GetUsages(startDate time.Time, endDate time.Time, projects []P
 
 		err = json.Unmarshal(bytes, &records)
 		if err != nil {
-			return nil, fmt.Errorf("Error while unmarshaling JSON response for project %s: %w", project.Id, err)
+			return nil, fmt.Errorf("error while unmarshaling JSON response for project %s: %w", project.Id, err)
 		}
 
 		usages[project] = records.Usages
