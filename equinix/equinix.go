@@ -3,7 +3,7 @@ package equinix
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -54,7 +54,7 @@ func (eq Equinix) GetProjects() ([]Project, error) {
 	}
 	defer resp.Body.Close()
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error while reading the response body: %w", err)
 	}
@@ -103,7 +103,7 @@ func (eq Equinix) GetUsages(startDate time.Time, endDate time.Time, projects []P
 		}
 		defer resp.Body.Close()
 
-		bytes, err := ioutil.ReadAll(resp.Body)
+		bytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, fmt.Errorf("Error while reading the response body for project %s: %w", project.Id, err)
 		}
