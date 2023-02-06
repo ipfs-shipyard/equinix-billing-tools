@@ -48,14 +48,14 @@ type CostSummaryT struct {
 	baselineEnd   time.Time
 }
 
-func CostSummary(equinixToken string) Command {
+func CostSummary(eq equinix.Equinix) Command {
 	cmd := flag.NewFlagSet("cost_summary", flag.ExitOnError)
 
 	helpF := cmd.Bool("h", false, "Show this help")
 	daysF := cmd.Int("d", 1, "Number of days to aggregate (default: 1)")
-	typeF := cmd.String("t", "", "Report type: reservations, or blank (meaning everything except reservations) (default: blank)")
 	endF := cmd.String("e", time.Now().AddDate(0, 0, -2).Format("2006-01-02"), "End date in YYYY-MM-DD format (default: 2 days ago)")
 	baselineF := cmd.String("b", "", "Baseline end date in YYYY-MM-DD format (default: day before the start date)")
+	typeF := cmd.String("t", "", "Report type: reservations, or blank (meaning everything except reservations) (default: blank)")
 
 	//
 	// Parse command-line arguments
@@ -66,8 +66,6 @@ func CostSummary(equinixToken string) Command {
 	if *helpF {
 		cmd.Usage()
 		os.Exit(0)
-	} else {
-		fmt.Println("No help")
 	}
 
 	days := *daysF
@@ -108,10 +106,6 @@ func CostSummary(equinixToken string) Command {
 
 	baseStart := baseEnd.AddDate(0, 0, -days+1)
 
-	eq := equinix.Equinix{
-		Token: equinixToken,
-	}
-
 	return CostSummaryT{
 		equinix:       eq,
 		reportType:    reportType,
@@ -140,12 +134,15 @@ func (s CostSummaryT) Run() {
 		},
 	)
 
-	usages, err := s.equinix.GetUsages(s.startDate, s.endDate, projects)
+	// Add 1 to the endDate since GetUsages assumes 00:00:00.000
+	end := s.endDate.AddDate(0, 0, 1)
+	baseEnd := s.baselineEnd.AddDate(0, 0, 1)
+	usages, err := s.equinix.GetUsages(s.startDate, end, projects)
 	if err != nil {
 		log.Error("Error while getting usages\n%s", err.Error())
 		os.Exit(1)
 	}
-	baseline, err := s.equinix.GetUsages(s.baselineStart, s.baselineEnd, projects)
+	baseline, err := s.equinix.GetUsages(s.baselineStart, baseEnd, projects)
 	if err != nil {
 		log.Error("Error while getting usages\n%s", err.Error())
 		os.Exit(1)
@@ -204,7 +201,7 @@ func (s CostSummaryT) Run() {
 		perProjectSummary[project.Name] = summary
 	}
 
-	fmt.Printf("%-15.15s %11s %11s\n", "Project", s.endDate.Format("2006-01-02"), s.baselineEnd.Format("2006-01-02"))
+	fmt.Printf("%-15.15s %11s %11s\n", "Project", s.baselineEnd.Format("2006-01-02"), s.endDate.Format("2006-01-02"))
 	p := message.NewPrinter(language.English)
 	for _, project := range projects {
 		summary := perProjectSummary[project.Name]
@@ -212,8 +209,8 @@ func (s CostSummaryT) Run() {
 		p.Printf(
 			"%-15.15s %11.2f %11.2f %+7.2f%%\n",
 			project.Name,
-			summary.Total,
 			summary.BaseTotal,
+			summary.Total,
 			100.0*(summary.Total-summary.BaseTotal)/summary.BaseTotal,
 		)
 
@@ -222,8 +219,8 @@ func (s CostSummaryT) Run() {
 	p.Printf(
 		"%-15.15s %11.2f %11.2f %+7.2f%%\n",
 		"Total",
-		totals.Total,
 		totals.BaseTotal,
+		totals.Total,
 		100.0*(totals.Total-totals.BaseTotal)/totals.BaseTotal,
 	)
 }
