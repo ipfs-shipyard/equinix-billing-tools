@@ -120,10 +120,6 @@ func CostSummary(eq equinix.Equinix) Command {
 }
 
 func (s CostSummaryT) Run() {
-	//
-	// Fetch the usage records for the given date for all projects
-	//
-
 	projects, err := s.equinix.GetProjects()
 	if err != nil {
 		log.Error("Error while getting project list\n%s", err.Error())
@@ -165,15 +161,12 @@ func (s CostSummaryT) Run() {
 	}
 
 	if s.onlyGateways {
+		// For the Only Gatways report, split gateway usages between load balancers and Kubo
 		usages = splitGateways(usages)
 		baseline = splitGateways(baseline)
 	}
 
-	//
 	// Summarize the usage records
-	//
-
-	// Summarize by project
 	perProjectSummary, totals := summarize(s.reportType, baseline, usages)
 
 	fmt.Printf("%-15.15s %11s %11s\n", "Project", s.baselineEnd.Format("2006-01-02"), s.endDate.Format("2006-01-02"))
