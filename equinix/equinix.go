@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/ipfs-shipyard/equinix-billing-tools/common"
 )
 
 type Equinix struct {
@@ -72,20 +74,19 @@ func (eq Equinix) GetProjects() ([]Project, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error while unmarshaling JSON response: %w", err)
 	}
-
 	return projects.Projects, nil
 }
 
-func (eq Equinix) GetUsages(startDate time.Time, endDate time.Time, projects []Project) (map[Project][]UsageRecord, error) {
+func (eq Equinix) GetUsages(startTime time.Time, endTime time.Time, projects []Project) (map[string][]UsageRecord, error) {
 	client := &http.Client{}
-	usages := make(map[Project][]UsageRecord)
+	usages := make(map[string][]UsageRecord)
 
 	for _, project := range projects {
 		uri := fmt.Sprintf(
-			"https://api.equinix.com/metal/v1/projects/%s/usages?created[after]=%sT00:00:00&created[before]=%sT23:59:59.999",
+			"https://api.equinix.com/metal/v1/projects/%s/usages?created[after]=%s&created[before]=%s",
 			project.Id,
-			startDate.Format("2006-01-02"),
-			endDate.Format("2006-01-02"),
+			startTime.Format(common.ISO8601_FORMAT),
+			endTime.Format(common.ISO8601_FORMAT),
 		)
 		req, err := http.NewRequest(
 			"GET",
@@ -123,7 +124,7 @@ func (eq Equinix) GetUsages(startDate time.Time, endDate time.Time, projects []P
 			return nil, fmt.Errorf("error while unmarshaling JSON response for project %s: %w", project.Id, err)
 		}
 
-		usages[project] = records.Usages
+		usages[project.Name] = records.Usages
 	}
 
 	return usages, nil
