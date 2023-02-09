@@ -132,7 +132,7 @@ func (s CostSummaryT) Run() {
 
 	if s.onlyGateways {
 		// Delete all projects from the projects slice except for the gateways project
-		projs := make([]equinix.Project, 1, 1)
+		projs := make([]equinix.Project, 1)
 
 		for _, p := range projects {
 			if p.Name == "gateway" {
