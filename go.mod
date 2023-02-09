@@ -5,7 +5,6 @@ go 1.19
 require (
 	cloud.google.com/go/bigquery v1.45.0
 	github.com/ipfs/go-log/v2 v2.5.1
-	golang.org/x/exp v0.0.0-20230206171751-46f607a40771
 	golang.org/x/text v0.4.0
 )
 
