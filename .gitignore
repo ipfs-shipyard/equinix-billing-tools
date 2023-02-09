@@ -15,6 +15,7 @@
 # vendor/
 
 equinix-billing-tools
+account-key.json
 
 # Editors
 *~
