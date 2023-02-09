@@ -77,9 +77,9 @@ func (eq Equinix) GetProjects() ([]Project, error) {
 	return projects.Projects, nil
 }
 
-func (eq Equinix) GetUsages(startTime time.Time, endTime time.Time, projects []Project) (map[Project][]UsageRecord, error) {
+func (eq Equinix) GetUsages(startTime time.Time, endTime time.Time, projects []Project) (map[string][]UsageRecord, error) {
 	client := &http.Client{}
-	usages := make(map[Project][]UsageRecord)
+	usages := make(map[string][]UsageRecord)
 
 	for _, project := range projects {
 		uri := fmt.Sprintf(
@@ -124,7 +124,7 @@ func (eq Equinix) GetUsages(startTime time.Time, endTime time.Time, projects []P
 			return nil, fmt.Errorf("error while unmarshaling JSON response for project %s: %w", project.Id, err)
 		}
 
-		usages[project] = records.Usages
+		usages[project.Name] = records.Usages
 	}
 
 	return usages, nil

@@ -53,8 +53,8 @@ func UploadToBigquery(eq equinix.Equinix) Command {
 	cmd := flag.NewFlagSet("bigquery", flag.ExitOnError)
 
 	helpF := cmd.Bool("h", false, "Show this help")
-	startF := cmd.String("s", time.Now().AddDate(0, 0, -3).Format(common.ISO8601_FORMAT), "Start time in ISO8601 format")
-	endF := cmd.String("e", time.Now().AddDate(0, 0, -2).Format(common.ISO8601_FORMAT), "End time in ISO8601 format")
+	startF := cmd.String("s", time.Now().AddDate(0, 0, -2).Format(common.ISO8601_FORMAT), "Start time in ISO8601 format")
+	secondsF := cmd.Int64("i", 86400, "Time interval in seconds")
 	projectIdF := cmd.String("p", "", "Project ID (mandatory)")
 	datasetIdF := cmd.String("d", "", "Dataset ID (mandatory)")
 	tableIdF := cmd.String("t", "", "Table ID (mandatory)")
@@ -71,22 +71,13 @@ func UploadToBigquery(eq equinix.Equinix) Command {
 
 	startTime, err = common.ParsePartialIsoTime(*startF)
 	if err != nil {
-		log.Errorf("Invalid start time %s, it must be in ISO8601 format: %s", *startF, err.Error())
+		log.Errorf("Invalid end time %s, it must be in ISO8601 format: %s", *startF, err.Error())
 		os.Exit(1)
 	}
 
-	var endTime time.Time
+	endTime := startTime.Add(time.Duration(*secondsF) * time.Second)
 
-	endTime, err = common.ParsePartialIsoTime(*endF)
-	if err != nil {
-		log.Errorf("Invalid end time %s, it must be in ISO8601 format: %s", *endF, err.Error())
-		os.Exit(1)
-	}
-
-	if startTime.After(endTime) || startTime == endTime {
-		log.Errorf("Start time %s must be before end time %s", *startF, *endF)
-		os.Exit(1)
-	}
+	log.Infof("Inserting from %v to %v", startTime, endTime)
 
 	// TODO Validate project.dataset.table
 	// TODO Dockerfile
@@ -148,7 +139,7 @@ func (up UploadToBigqueryT) Run() {
 			bqU := usageRecord{
 				startTime: up.startTime,
 				endTime:   up.endTime,
-				project:   project.Name,
+				project:   project,
 				metro:     u.Metro,
 				plan:      u.Plan,
 				tpe:       u.Type,
@@ -160,7 +151,7 @@ func (up UploadToBigqueryT) Run() {
 			items = append(items, bqU)
 		}
 
-		log.Infof("%s: inserting %d records", project.Name, len(items))
+		log.Infof("%s: inserting %d records", project, len(items))
 
 		if err = inserter.Put(ctx, items); err != nil {
 			log.Error("Error while bulk-inserting items to BigQuery\n%s\n", err.Error())
