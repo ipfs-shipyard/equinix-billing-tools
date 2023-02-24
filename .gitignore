@@ -16,6 +16,7 @@
 
 equinix-billing-tools
 account-key.json
+.env
 
 # Editors
 *~
