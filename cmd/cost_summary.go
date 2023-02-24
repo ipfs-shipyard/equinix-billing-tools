@@ -171,7 +171,16 @@ func (s CostSummaryT) Run() {
 
 	fmt.Printf("%-15.15s %11s %11s\n", "Project", s.baselineEnd.Format("2006-01-02"), s.endDate.Format("2006-01-02"))
 	p := message.NewPrinter(language.English)
-	for project, summary := range perProjectSummary {
+
+	projs := make([]string, 0, len(perProjectSummary))
+
+	for p := range perProjectSummary {
+		projs = append(projs, p)
+	}
+	sort.Strings(projs)
+
+	for _, project := range projs {
+		summary := perProjectSummary[project]
 		p.Printf(
 			"%-15.15s %11.2f %11.2f %+7.2f%%\n",
 			project,
@@ -203,6 +212,10 @@ func splitGateways(usages map[string][]equinix.UsageRecord) map[string][]equinix
 			k = "gateway-kubo"
 		} else if strings.HasPrefix(u.Name, "gateway-") || (u.Type == "HardwareReservation" && strings.Contains(u.Plan, "small")) {
 			k = "gateway-lb"
+		} else if strings.HasPrefix(u.Name, "bifrost-") || (u.Type == "HardwareReservation" && strings.Contains(u.Plan, "small")) {
+			k = "gateway-bifrost"
+		} else {
+			k = u.Name
 		}
 
 		usages[k] = append(usages[k], u)
@@ -211,6 +224,7 @@ func splitGateways(usages map[string][]equinix.UsageRecord) map[string][]equinix
 	return usages
 }
 
+// summarize
 func summarize(
 	reportType ReportType,
 	baseline map[string][]equinix.UsageRecord,
@@ -238,6 +252,9 @@ func summarize(
 		}
 		baseUsages := baseline[project]
 
+		if strings.Contains(project, "-kube") {
+			project = strings.Replace(project, "-kube", "-k8s", 1)
+		}
 		for _, usage := range projectUsages {
 			if reportType.includeUsage(usage) {
 				summary.Price += usage.Price
