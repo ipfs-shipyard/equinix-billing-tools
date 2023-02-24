@@ -53,7 +53,7 @@ func UploadToBigquery(eq equinix.Equinix) Command {
 	cmd := flag.NewFlagSet("bigquery", flag.ExitOnError)
 
 	helpF := cmd.Bool("h", false, "Show this help")
-	startF := cmd.String("s", time.Now().AddDate(0, 0, -2).Format(common.ISO8601_FORMAT), "Start time in ISO8601 format")
+	startF := cmd.String("s", time.Now().AddDate(0, 0, -2).Truncate(86400*time.Second).Format(common.ISO8601_FORMAT), "Start time in ISO8601 format")
 	secondsF := cmd.Int64("i", 86400, "Time interval in seconds")
 	projectIdF := cmd.String("p", "", "Project ID (mandatory)")
 	datasetIdF := cmd.String("d", "", "Dataset ID (mandatory)")
@@ -80,7 +80,6 @@ func UploadToBigquery(eq equinix.Equinix) Command {
 	log.Infof("Inserting from %v to %v", startTime, endTime)
 
 	// TODO Validate project.dataset.table
-	// TODO Dockerfile
 
 	return UploadToBigqueryT{
 		equinix:   eq,
