@@ -252,9 +252,8 @@ func summarize(
 		}
 		baseUsages := baseline[project]
 
-		if strings.Contains(project, "-kube") {
-			project = strings.Replace(project, "-kube", "-k8s", 1)
-		}
+		project = strings.Replace(project, "-kube", "-k8s", 1)
+
 		for _, usage := range projectUsages {
 			if reportType.includeUsage(usage) {
 				summary.Price += usage.Price

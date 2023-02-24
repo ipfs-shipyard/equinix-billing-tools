@@ -15,8 +15,6 @@ You will need to set the `EQUINIX_TOKEN` environment variable to this token.
 
 `equinix-billing-tools <subcommand> [<options>]`
 
-At the moment there is a single subcommand. More will come.
-
 ### `cost_summary` subcommand
 
 Displays a summary of costs per project for the given period and for a baseline
@@ -52,3 +50,5 @@ For example: if you run with the flags `-e 2023-01-22 -d 7` you will get the fol
 
 * Report period: 2023-01-16 to 2023-01-22 (both inclusive)
 * Baseline period: 2023-01-07 to 2023-01-15 (both inclusive)
+
+### `bigquery` subcommand
