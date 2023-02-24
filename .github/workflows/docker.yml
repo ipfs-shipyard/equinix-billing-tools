@@ -23,6 +23,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: docker.io/ipfsshipyardbot/equinix-billing-tools
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
