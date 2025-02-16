@@ -1,6 +1,6 @@
 module github.com/ipfs-shipyard/equinix-billing-tools
 
-go 1.22
+go 1.23
 
 require (
 	cloud.google.com/go/bigquery v1.45.0
