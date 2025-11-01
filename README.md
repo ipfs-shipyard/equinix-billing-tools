@@ -52,3 +52,5 @@ For example: if you run with the flags `-e 2023-01-22 -d 7` you will get the fol
 * Baseline period: 2023-01-07 to 2023-01-15 (both inclusive)
 
 ### `bigquery` subcommand
+
+
